@@ -34,6 +34,7 @@
 #include "runtime/type_limit.h"
 #include "uint24.h"
 #include "vec/columns/column_dictionary.h"
+#include "vec/columns/column_vector.h"
 #include "vec/core/types.h"
 
 namespace std {
@@ -498,7 +499,11 @@ private:
             }
         } else {
             auto* nested_col_ptr = vectorized::check_and_get_column<
+                    vectorized::ColumnVector<T>>(column);
+            /*
+            auto* nested_col_ptr = vectorized::check_and_get_column<
                     vectorized::PredicateColumnType<PredicateEvaluateType<Type>>>(column);
+            */
             auto& data_array = nested_col_ptr->get_data();
 
             for (uint16_t i = 0; i < size; i++) {
@@ -574,7 +579,11 @@ private:
             }
         } else {
             auto* nested_col_ptr = vectorized::check_and_get_column<
+                    vectorized::ColumnVector<T>>(column);
+            /*
+            auto* nested_col_ptr = vectorized::check_and_get_column<
                     vectorized::PredicateColumnType<PredicateEvaluateType<Type>>>(column);
+            */
             auto& data_array = nested_col_ptr->get_data();
 
             for (uint16_t i = 0; i < size; i++) {

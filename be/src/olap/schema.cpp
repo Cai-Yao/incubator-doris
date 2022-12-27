@@ -114,6 +114,7 @@ vectorized::DataTypePtr Schema::get_data_type_ptr(const Field& field) {
     return vectorized::DataTypeFactory::instance().create_data_type(field);
 }
 
+/*
 vectorized::IColumn::MutablePtr Schema::get_predicate_column_nullable_ptr(const Field& field) {
     if (UNLIKELY(field.type() == OLAP_FIELD_TYPE_ARRAY)) {
         return get_data_type_ptr(field)->create_column();
@@ -186,5 +187,6 @@ vectorized::IColumn::MutablePtr Schema::get_predicate_column_ptr(FieldType type)
         LOG(FATAL) << "Unexpected type when choosing predicate column, type=" << type;
     }
 }
+*/
 
 } // namespace doris

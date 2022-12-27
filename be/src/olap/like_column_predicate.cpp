@@ -20,6 +20,7 @@
 #include "olap/field.h"
 #include "runtime/string_value.hpp"
 #include "udf/udf.h"
+#include "vec/columns/column_string.h"
 
 namespace doris {
 
@@ -109,8 +110,13 @@ uint16_t LikeColumnPredicate<is_vectorized>::evaluate(const vectorized::IColumn&
                     }
                 }
             } else {
+                /*
+                auto* str_col = vectorized::check_and_get_column<
+                        vectorized::ColumnString>(nested_col);
+                
                 auto* str_col = vectorized::check_and_get_column<
                         vectorized::PredicateColumnType<TYPE_STRING>>(nested_col);
+                
                 if (!nullable_col->has_null()) {
                     vectorized::ColumnUInt8::Container res(size, 0);
                     (_state->predicate_like_function)(
@@ -138,6 +144,7 @@ uint16_t LikeColumnPredicate<is_vectorized>::evaluate(const vectorized::IColumn&
                         new_size += _opposite ^ flag;
                     }
                 }
+                */
             }
         } else {
             if (column.is_column_dictionary()) {
@@ -155,8 +162,9 @@ uint16_t LikeColumnPredicate<is_vectorized>::evaluate(const vectorized::IColumn&
                     new_size += _opposite ^ flag;
                 }
             } else {
+                /*
                 auto* str_col = vectorized::check_and_get_column<
-                        vectorized::PredicateColumnType<TYPE_STRING>>(column);
+                        vectorized::ColumnString>(column);
                 vectorized::ColumnUInt8::Container res(size, 0);
                 (_state->predicate_like_function)(
                         const_cast<vectorized::LikeSearchState*>(&_like_state), *str_col, pattern,
@@ -166,6 +174,7 @@ uint16_t LikeColumnPredicate<is_vectorized>::evaluate(const vectorized::IColumn&
                     sel[new_size] = idx;
                     new_size += _opposite ^ res[i];
                 }
+                */
             }
         }
     }

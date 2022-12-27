@@ -23,6 +23,7 @@
 #include "olap/rowset/segment_v2/bloom_filter.h"
 #include "olap/wrapper_field.h"
 #include "vec/columns/column_dictionary.h"
+#include "vec/columns/column_vector.h"
 
 namespace doris {
 
@@ -345,11 +346,16 @@ public:
                     LOG(FATAL) << "column_dictionary must use StringValue predicate.";
                 }
             } else {
+                auto* data_array = reinterpret_cast<const vectorized::ColumnVector<T>&>(
+                                           nested_column)
+                                           .get_data()
+                                           .data();
+                /*                            )
                 auto* data_array = reinterpret_cast<const vectorized::PredicateColumnType<
                         PredicateEvaluateType<Type>>&>(nested_column)
                                            .get_data()
                                            .data();
-
+                */
                 _base_loop_vec<true, is_and>(size, flags, null_map.data(), data_array, _value);
             }
         } else {
@@ -369,10 +375,18 @@ public:
             } else {
                 auto* data_array =
                         vectorized::check_and_get_column<
+                                vectorized::ColumnVector<T>>(
+                                column)
+                                ->get_data()
+                                .data();
+                /*
+                auto* data_array =
+                        vectorized::check_and_get_column<
                                 vectorized::PredicateColumnType<PredicateEvaluateType<Type>>>(
                                 column)
                                 ->get_data()
                                 .data();
+                */
 
                 _base_loop_vec<false, is_and>(size, flags, nullptr, data_array, _value);
             }
@@ -548,9 +562,16 @@ private:
         } else {
             auto* data_array =
                     vectorized::check_and_get_column<
+                            vectorized::ColumnVector<T>>(column)
+                            ->get_data()
+                            .data();
+            /*
+            auto* data_array =
+                    vectorized::check_and_get_column<
                             vectorized::PredicateColumnType<PredicateEvaluateType<Type>>>(column)
                             ->get_data()
                             .data();
+            */
 
             _base_loop_bit<is_nullable, is_and>(sel, size, flags, null_map, data_array, _value);
         }
@@ -595,9 +616,16 @@ private:
         } else {
             auto* data_array =
                     vectorized::check_and_get_column<
+                            vectorized::ColumnVector<T>>(column)
+                            ->get_data()
+                            .data();
+            /*
+            auto* data_array =
+                    vectorized::check_and_get_column<
                             vectorized::PredicateColumnType<PredicateEvaluateType<Type>>>(column)
                             ->get_data()
                             .data();
+            */
 
             return _base_loop<is_nullable>(sel, size, null_map, data_array, _value);
         }

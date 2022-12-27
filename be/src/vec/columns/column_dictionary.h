@@ -275,7 +275,8 @@ public:
         if (is_dict_sorted() && !is_dict_code_converted()) {
             convert_dict_codes_if_necessary();
         }
-        auto res = vectorized::PredicateColumnType<TYPE_STRING>::create();
+        auto res = vectorized::ColumnString::create();
+        // auto res = vectorized::PredicateColumnType<TYPE_STRING>::create();
         res->reserve(_codes.size());
         for (size_t i = 0; i < _codes.size(); ++i) {
             auto& code = reinterpret_cast<T&>(_codes[i]);

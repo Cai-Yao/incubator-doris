@@ -100,9 +100,9 @@ struct LikeSearchState {
 using LikeFn = std::function<doris::Status(LikeSearchState*, const ColumnString&,
                                            const StringValue&, ColumnUInt8::Container&)>;
 
-using LikePredicateFn = std::function<doris::Status(
-        LikeSearchState*, const PredicateColumnType<TYPE_STRING>&, const StringValue&,
-        ColumnUInt8::Container&, uint16_t* sel, size_t sz)>;
+// using LikePredicateFn = std::function<doris::Status(
+//         LikeSearchState*, const PredicateColumnType<TYPE_STRING>&, const StringValue&,
+//         ColumnUInt8::Container&, uint16_t* sel, size_t sz)>;
 
 using ScalarLikeFn = std::function<doris::Status(LikeSearchState*, const StringRef&,
                                                  const StringValue&, unsigned char*)>;
@@ -111,7 +111,7 @@ struct LikeState {
     LikeSearchState search_state;
     LikeFn function;
     // Two functions below are used only for predicate.
-    LikePredicateFn predicate_like_function;
+    LikeFn predicate_like_function;
     ScalarLikeFn scalar_function;
 };
 
@@ -159,6 +159,7 @@ protected:
                             const StringValue& pattern, ColumnUInt8::Container& result);
 
     // These functions below are used only for predicate.
+    /*
     static Status constant_regex_fn_predicate(LikeSearchState* state,
                                               const PredicateColumnType<TYPE_STRING>& val,
                                               const StringValue& pattern,
@@ -193,6 +194,7 @@ protected:
                                                   const StringValue& pattern,
                                                   ColumnUInt8::Container& result, uint16_t* sel,
                                                   size_t sz);
+    */
 
     static Status constant_starts_with_fn_scalar(LikeSearchState* state, const StringRef& val,
                                                  const StringValue& pattern, unsigned char* result);

@@ -1114,7 +1114,7 @@ Status SegmentIterator::next_batch(vectorized::Block* block) {
             auto column_desc = _schema.column(cid);
             if (_is_pred_column[cid]) {
                 _current_return_columns[cid] =
-                        Schema::get_predicate_column_nullable_ptr(*column_desc);
+                        Schema::get_data_type_ptr(*column_desc)->create_column();
                 _current_return_columns[cid]->set_rowset_segment_id(
                         {_segment->rowset_id(), _segment->id()});
                 _current_return_columns[cid]->reserve(_opts.block_row_max);

@@ -110,6 +110,7 @@ Status FunctionLikeBase::constant_substring_fn(LikeSearchState* state, const Col
     return Status::OK();
 }
 
+/*
 Status FunctionLikeBase::constant_starts_with_fn_predicate(
         LikeSearchState* state, const PredicateColumnType<TYPE_STRING>& val,
         const StringValue& pattern, ColumnUInt8::Container& result, uint16_t* sel, size_t sz) {
@@ -160,6 +161,7 @@ Status FunctionLikeBase::constant_substring_fn_predicate(
     }
     return Status::OK();
 }
+*/
 
 Status FunctionLikeBase::constant_starts_with_fn_scalar(LikeSearchState* state,
                                                         const StringRef& val,
@@ -270,6 +272,7 @@ Status FunctionLikeBase::regexp_fn(LikeSearchState* state, const ColumnString& v
     return Status::OK();
 }
 
+/*
 Status FunctionLikeBase::constant_regex_fn_predicate(LikeSearchState* state,
                                                      const PredicateColumnType<TYPE_STRING>& val,
                                                      const StringValue& pattern,
@@ -313,6 +316,7 @@ Status FunctionLikeBase::regexp_fn_predicate(LikeSearchState* state,
 
     return Status::OK();
 }
+*/
 
 // hyperscan compile expression to database and allocate scratch space
 Status FunctionLikeBase::hs_prepare(FunctionContext* context, const char* expression,
@@ -447,6 +451,7 @@ Status FunctionLike::like_fn(LikeSearchState* state, const ColumnString& val,
     return regexp_fn(state, val, {re_pattern.c_str(), (int)re_pattern.size()}, result);
 }
 
+/*
 Status FunctionLike::like_fn_predicate(LikeSearchState* state,
                                        const PredicateColumnType<TYPE_STRING>& val,
                                        const StringValue& pattern, ColumnUInt8::Container& result,
@@ -457,6 +462,7 @@ Status FunctionLike::like_fn_predicate(LikeSearchState* state,
     return regexp_fn_predicate(state, val, {re_pattern.c_str(), (int)re_pattern.size()}, result,
                                sel, sz);
 }
+*/
 
 Status FunctionLike::like_fn_scalar(LikeSearchState* state, const StringValue& val,
                                     const StringValue& pattern, unsigned char* result) {
@@ -535,7 +541,7 @@ Status FunctionLike::prepare(FunctionContext* context, FunctionContext::Function
     auto* state = new LikeState();
     context->set_function_state(scope, state);
     state->function = like_fn;
-    state->predicate_like_function = like_fn_predicate;
+    // state->predicate_like_function = like_fn_predicate;
     state->scalar_function = like_fn_scalar;
     if (context->is_col_constant(1)) {
         const auto pattern_col = context->get_constant_col(1)->column_ptr;
@@ -548,25 +554,25 @@ Status FunctionLike::prepare(FunctionContext* context, FunctionContext::Function
             remove_escape_character(&search_string);
             state->search_state.set_search_string(search_string);
             state->function = constant_equals_fn;
-            state->predicate_like_function = constant_equals_fn_predicate;
+            // state->predicate_like_function = constant_equals_fn_predicate;
             state->scalar_function = constant_equals_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, LIKE_STARTS_WITH_RE, &search_string)) {
             remove_escape_character(&search_string);
             state->search_state.set_search_string(search_string);
             state->function = constant_starts_with_fn;
-            state->predicate_like_function = constant_starts_with_fn_predicate;
+            // state->predicate_like_function = constant_starts_with_fn_predicate;
             state->scalar_function = constant_starts_with_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, LIKE_ENDS_WITH_RE, &search_string)) {
             remove_escape_character(&search_string);
             state->search_state.set_search_string(search_string);
             state->function = constant_ends_with_fn;
-            state->predicate_like_function = constant_ends_with_fn_predicate;
+            // state->predicate_like_function = constant_ends_with_fn_predicate;
             state->scalar_function = constant_ends_with_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, LIKE_SUBSTRING_RE, &search_string)) {
             remove_escape_character(&search_string);
             state->search_state.set_search_string(search_string);
             state->function = constant_substring_fn;
-            state->predicate_like_function = constant_substring_fn_predicate;
+            // state->predicate_like_function = constant_substring_fn_predicate;
             state->scalar_function = constant_substring_fn_scalar;
         } else {
             std::string re_pattern;
@@ -580,7 +586,7 @@ Status FunctionLike::prepare(FunctionContext* context, FunctionContext::Function
             state->search_state.hs_scratch.reset(scratch);
 
             state->function = constant_regex_fn;
-            state->predicate_like_function = constant_regex_fn_predicate;
+            // state->predicate_like_function = constant_regex_fn_predicate;
             state->scalar_function = constant_regex_fn_scalar;
         }
     }
@@ -595,7 +601,7 @@ Status FunctionRegexp::prepare(FunctionContext* context,
     auto* state = new LikeState();
     context->set_function_state(scope, state);
     state->function = regexp_fn;
-    state->predicate_like_function = regexp_fn_predicate;
+    // state->predicate_like_function = regexp_fn_predicate;
     state->scalar_function = regexp_fn_scalar;
     if (context->is_col_constant(1)) {
         const auto pattern_col = context->get_constant_col(1)->column_ptr;
@@ -606,22 +612,22 @@ Status FunctionRegexp::prepare(FunctionContext* context,
         if (RE2::FullMatch(pattern_str, EQUALS_RE, &search_string)) {
             state->search_state.set_search_string(search_string);
             state->function = constant_equals_fn;
-            state->predicate_like_function = constant_equals_fn_predicate;
+            //state->predicate_like_function = constant_equals_fn_predicate;
             state->scalar_function = constant_equals_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, STARTS_WITH_RE, &search_string)) {
             state->search_state.set_search_string(search_string);
             state->function = constant_starts_with_fn;
-            state->predicate_like_function = constant_starts_with_fn_predicate;
+            //state->predicate_like_function = constant_starts_with_fn_predicate;
             state->scalar_function = constant_starts_with_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, ENDS_WITH_RE, &search_string)) {
             state->search_state.set_search_string(search_string);
             state->function = constant_ends_with_fn;
-            state->predicate_like_function = constant_ends_with_fn_predicate;
+            //state->predicate_like_function = constant_ends_with_fn_predicate;
             state->scalar_function = constant_ends_with_fn_scalar;
         } else if (RE2::FullMatch(pattern_str, SUBSTRING_RE, &search_string)) {
             state->search_state.set_search_string(search_string);
             state->function = constant_substring_fn;
-            state->predicate_like_function = constant_substring_fn_predicate;
+            //state->predicate_like_function = constant_substring_fn_predicate;
             state->scalar_function = constant_substring_fn_scalar;
         } else {
             hs_database_t* database = nullptr;
@@ -632,7 +638,7 @@ Status FunctionRegexp::prepare(FunctionContext* context,
             state->search_state.hs_scratch.reset(scratch);
 
             state->function = constant_regex_fn;
-            state->predicate_like_function = constant_regex_fn_predicate;
+            //state->predicate_like_function = constant_regex_fn_predicate;
             state->scalar_function = constant_regex_fn_scalar;
         }
     }

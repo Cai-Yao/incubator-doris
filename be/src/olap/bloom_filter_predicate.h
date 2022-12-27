@@ -34,6 +34,7 @@ template <PrimitiveType T>
 class BloomFilterColumnPredicate : public ColumnPredicate {
 public:
     using SpecificFilter = BloomFilterFunc<T>;
+    using ValueType = typename PredicatePrimitiveTypeTraits<T>::PredicateFieldType;
 
     BloomFilterColumnPredicate(uint32_t column_id,
                                const std::shared_ptr<BloomFilterFuncBase>& filter,
@@ -85,11 +86,21 @@ private:
         } else if (IRuntimeFilter::enable_use_batch(_be_exec_version, T)) {
             new_size = _specific_filter->find_fixed_len_olap_engine(
                     (char*)reinterpret_cast<
+                            const vectorized::ColumnVector<ValueType>*>(
+                            &column)
+                            ->get_data()
+                            .data(),
+                    null_map, sel, size);
+
+            /*
+            new_size = _specific_filter->find_fixed_len_olap_engine(
+                    (char*)reinterpret_cast<
                             const vectorized::PredicateColumnType<PredicateEvaluateType<T>>*>(
                             &column)
                             ->get_data()
                             .data(),
                     null_map, sel, size);
+            */
         } else {
             uint24_t tmp_uint24_value;
             auto get_cell_value = [&tmp_uint24_value](auto& data) {
@@ -101,13 +112,20 @@ private:
                     return (const char*)&data;
                 }
             };
-
+            auto pred_col_data =
+                    reinterpret_cast<
+                            const vectorized::ColumnVector<ValueType>*>(
+                            &column)
+                            ->get_data()
+                            .data();
+            /*
             auto pred_col_data =
                     reinterpret_cast<
                             const vectorized::PredicateColumnType<PredicateEvaluateType<T>>*>(
                             &column)
                             ->get_data()
                             .data();
+            */
             for (uint16_t i = 0; i < size; i++) {
                 uint16_t idx = sel[i];
                 sel[new_size] = idx;
